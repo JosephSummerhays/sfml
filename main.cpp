@@ -9,6 +9,7 @@ private:
 	sf::Texture* tex;
 	sf::Sprite* spr;
 	controller* c;
+	float velocity = 1;
 
 public:
 	player(std::string im_file, controller* c) {
@@ -30,10 +31,11 @@ public:
 		this->c = c;
 		spr->setTexture(*tex);
 	}
+	void setVelocity(float v) { velocity = v; }
 	void step(float delta) {
 		sf::Vector2f x = c->movement();
 		fprintf(stderr, "%f %f\n", x.x, x.y);
-		spr->move(c->movement()*delta);
+		spr->move(c->movement()*delta*velocity);
 	}
 	sf::Sprite* getSprite() { return spr; }
 };
@@ -41,16 +43,17 @@ public:
 int main()
 {
 	sf::RenderWindow window(sf::VideoMode(1000,1000), "Hello, World!");
-	joystickI* joy = new keyboardJoy(sf::Keyboard::A,
-					sf::Keyboard::D,
-					sf::Keyboard::W,
+	joystickI* joy = new keyboardJoy(sf::Keyboard::D,
+					sf::Keyboard::A,
 					sf::Keyboard::S,
-					sf::Keyboard::C,
+					sf::Keyboard::W,
 					sf::Keyboard::B,
-					sf::Keyboard::F,
-					sf::Keyboard::V);
+					sf::Keyboard::C,
+					sf::Keyboard::V,
+					sf::Keyboard::F);
 	controller* c = new controller(joy, sf::Keyboard::LShift, sf::Keyboard::Space);
 	player p("res/p.png", c);
+	p.setVelocity(6.6);
 
 	while (window.isOpen())
 	{

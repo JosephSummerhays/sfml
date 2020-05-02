@@ -1,3 +1,5 @@
+#ifndef JOYSTICK_H
+#define JOYSTICK_H
 #include <SFML/Graphics.hpp>
 #include <math.h>
 
@@ -116,3 +118,4 @@ public:
 		return joy->getZR();
 	}
 };
+#endif

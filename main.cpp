@@ -1,47 +1,12 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <cstdio>
+#include <math.h>
 
 #include "joystick.h"
+#include "physics.h"
 
-class player {
-private:
-	sf::Texture* tex;
-	sf::Sprite* spr;
-	controller* c;
-	float velocity = 1;
-
-public:
-	player(std::string im_file, controller* c) {
-		this->tex = new sf::Texture();
-		this->spr = new sf::Sprite();
-		this->c = c;
-		if(!tex->loadFromFile(im_file)) {
-			// error
-			fprintf(stderr,"load from file failed\n");
-		}
-		else {
-			fprintf(stderr,"load from file succeeded\n");
-			tex->setRepeated(false);
-			spr->setTexture(*tex);
-		}
-	}
-	player(sf::Texture* tex, controller* c) {
-		this->tex = tex;
-		this->c = c;
-		spr->setTexture(*tex);
-	}
-	void setVelocity(float v) { velocity = v; }
-	void step(float delta) {
-		sf::Vector2f x = c->movement();
-		fprintf(stderr, "%f %f\n", x.x, x.y);
-		spr->move(c->movement()*delta*velocity);
-	}
-	sf::Sprite* getSprite() { return spr; }
-};
-
-int main()
-{
+int main() {
 	sf::RenderWindow window(sf::VideoMode(1000,1000), "Hello, World!");
 	joystickI* joy = new keyboardJoy(sf::Keyboard::D,
 					sf::Keyboard::A,
@@ -52,8 +17,17 @@ int main()
 					sf::Keyboard::V,
 					sf::Keyboard::F);
 	controller* c = new controller(joy, sf::Keyboard::LShift, sf::Keyboard::Space);
-	player p("res/p.png", c);
-	p.setVelocity(6.6);
+	player* p = new player("res/p.png", c);
+	p->setVelocity(6.6);
+	directedWall* w = new directedWall("res/wall.jpg", sf::Vector2f(1,0), sf::IntRect(0,0,4,1000), sf::Vector2f(100,200), true);
+	std::vector<player*> players;
+	players.push_back(p);
+	std::vector<obj*> objects;
+	objects.push_back(w);
+	objects.push_back(ow);
+	objects.push_back(p);
+	physicsEngine physics(objects, players);
+
 
 	while (window.isOpen())
 	{
@@ -69,9 +43,11 @@ int main()
 				}
 			}
 		}
-		p.step(1.0);
+		physics.step(1.0);
 		window.clear();
-		window.draw(*p.getSprite());
+		for (int i = 0; i < objects.size(); i++) {
+			window.draw(*(objects.at(i)->getSprite()));
+		}
 		window.display();
 	}
 
